@@ -17,6 +17,23 @@ Google does not provide a sandbox or testing environment for the Business Profil
 - **Persistent & Editable** — All data lives in a single `data.json` file you can inspect, edit, or reset at any time
 - **Request Logging** — Every request is logged to the console for easy debugging
 
+## 🔖 API Version Compatibility
+
+This mock server is aligned with the following **Google Business Profile API** versions as of **March 2026**:
+
+| Google API | Version | Reference |
+|---|---|---|
+| Account Management | v1 | [accounts](https://developers.google.com/my-business/reference/accountmanagement/rest/v1/accounts) |
+| Business Information | v1 | [locations](https://developers.google.com/my-business/reference/businessinformation/rest/v1/accounts.locations) |
+| Business Performance | v1 | [performance](https://developers.google.com/my-business/reference/performance/rest/v1/locations) |
+| Notifications | v1 | [notificationSetting](https://developers.google.com/my-business/reference/notifications/rest/v1/accounts) |
+| Verifications | v1 | [verifications](https://developers.google.com/my-business/reference/verificationmanagement/rest/v1/locations) |
+| Reviews | v4 (legacy) | [reviews](https://developers.google.com/my-business/reference/rest/v4/accounts.locations.reviews) |
+| Media | v4 (legacy) | [media](https://developers.google.com/my-business/reference/rest/v4/accounts.locations.media) |
+| Local Posts | v4 (legacy) | [localPosts](https://developers.google.com/my-business/reference/rest/v4/accounts.locations.localPosts) |
+
+> **Note:** Google's Business Profile API is split across multiple sub-APIs with different base URLs. This mock unifies them under a single `http://localhost:8080/v1/` endpoint for convenience.
+
 ## 📋 Table of Contents
 
 - [Quick Start](#-quick-start)

@@ -5,7 +5,7 @@ import accountsRoutes from './routes/accounts.js';
 import locationsRoutes from './routes/locations.js';
 import reviewsRoutes from './routes/reviews.js';
 import performanceRoutes from './routes/performance.js';
-import categoriesRoutes from './routes/categories.js';
+import categoriesRoutes, { batchGetRouter as categoriesBatchGetRoutes } from './routes/categories.js';
 import attributesRoutes from './routes/attributes.js';
 import mediaRoutes from './routes/media.js';
 import postsRoutes from './routes/posts.js';
@@ -32,17 +32,19 @@ app.use('/v1/accounts', accountsRoutes);
 // Notifications API (nested under accounts)
 app.use('/v1/accounts', notificationsRoutes);
 
+// Business Performance API (must be before locationsRoutes so the :fetchMultiDailyMetricsTimeSeries
+// regex matches before the generic /locations/:locationId route)
+app.use('/v1', performanceRoutes);
+
 // Business Information API (locations, reviews, media, posts)
 app.use('/v1', locationsRoutes);
 app.use('/v1', reviewsRoutes);
 app.use('/v1', mediaRoutes);
 app.use('/v1', postsRoutes);
 
-// Business Performance API
-app.use('/v1', performanceRoutes);
-
 // Categories API
 app.use('/v1/categories', categoriesRoutes);
+app.use('/v1', categoriesBatchGetRoutes);
 
 // Attributes API
 app.use('/v1', attributesRoutes);
@@ -61,6 +63,14 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Mock Google Business Profile API running on http://localhost:${PORT}`);
-});
+// Export app for testing
+export { app };
+
+// Only start listening when run directly (not imported by tests)
+const isMainModule = process.argv[1] &&
+  import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'));
+if (isMainModule) {
+  app.listen(PORT, () => {
+    console.log(`Mock Google Business Profile API running on http://localhost:${PORT}`);
+  });
+}

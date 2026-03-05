@@ -18,9 +18,9 @@ const DAILY_METRICS = [
 ];
 
 // GET /v1/locations/:locationId:fetchMultiDailyMetricsTimeSeries
-router.get('/locations/:locationId\\:fetchMultiDailyMetricsTimeSeries', (req, res) => {
+router.get(/^\/locations\/(.+):fetchMultiDailyMetricsTimeSeries$/, (req, res) => {
     const data = readData();
-    const locationId = req.params.locationId;
+    const locationId = req.params[0];
     const location = data.locations.find(l => l.name.endsWith(`/locations/${locationId}`));
 
     if (!location) {

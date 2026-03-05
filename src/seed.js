@@ -69,13 +69,14 @@ const generateData = () => {
             accountName: faker.company.name(),
             type: "PERSONAL",
             role: "OWNER",
-            verificationState: "VERIFIED"
+            verificationState: "VERIFIED",
+            permissionLevel: "OWNER_LEVEL"
         });
 
         // Notification settings per account
         data.notifications.push({
-            name: `${accountName}/notifications`,
-            topicName: `projects/mock-project/topics/gbp-notifications-${accountId}`,
+            name: `${accountName}/notificationSetting`,
+            pubsubTopic: `projects/mock-project/topics/gbp-notifications-${accountId}`,
             notificationTypes: ["NEW_REVIEW", "UPDATED_REVIEW", "GOOGLE_UPDATE"]
         });
 
@@ -89,11 +90,13 @@ const generateData = () => {
                 name: locationName,
                 title: faker.company.name(),
                 storeCode: faker.string.alphanumeric(5).toUpperCase(),
-                primaryCategory: { displayName: category.displayName, categoryId: category.name },
+                categories: {
+                    primaryCategory: { displayName: category.displayName, name: category.name }
+                },
                 phoneNumbers: {
                     primaryPhone: faker.phone.number()
                 },
-                address: {
+                storefrontAddress: {
                     regionCode: "US",
                     languageCode: "en-US",
                     postalCode: faker.location.zipCode(),

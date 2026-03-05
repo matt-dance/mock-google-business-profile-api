@@ -4,9 +4,9 @@ import { readData, writeData } from '../data.js';
 const router = express.Router();
 
 // POST /v1/locations/:locationId:verify
-router.post('/locations/:locationId\\:verify', (req, res) => {
+router.post(/^\/locations\/(.+):verify$/, (req, res) => {
     const data = readData();
-    const locationId = req.params.locationId;
+    const locationId = req.params[0];
     const location = data.locations.find(l => l.name.endsWith(`/locations/${locationId}`));
 
     if (!location) {
@@ -40,10 +40,10 @@ router.get('/locations/:locationId/verifications', (req, res) => {
 });
 
 // POST /v1/locations/:locationId/verifications/:verificationId:complete
-router.post('/locations/:locationId/verifications/:verificationId\\:complete', (req, res) => {
+router.post(/^\/locations\/([^/]+)\/verifications\/(.+):complete$/, (req, res) => {
     const data = readData();
-    const locationId = req.params.locationId;
-    const verificationId = req.params.verificationId;
+    const locationId = req.params[0];
+    const verificationId = req.params[1];
 
     const index = (data.verifications || []).findIndex(v =>
         v.name.includes(`/locations/${locationId}/verifications/${verificationId}`)
@@ -60,7 +60,7 @@ router.post('/locations/:locationId/verifications/:verificationId\\:complete', (
 });
 
 // POST /v1/locations/:locationId:fetchVerificationOptions
-router.post('/locations/:locationId\\:fetchVerificationOptions', (req, res) => {
+router.post(/^\/locations\/(.+):fetchVerificationOptions$/, (req, res) => {
     res.json({
         options: [
             { verificationMethod: "SMS" },

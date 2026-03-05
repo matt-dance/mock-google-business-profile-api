@@ -21,8 +21,10 @@ router.get('/', (req, res) => {
     res.json({ categories });
 });
 
-// GET /v1/categories:batchGet
-router.get('\\:batchGet', (req, res) => {
+// GET /v1/categories:batchGet — exported separately because Express 5
+// doesn't match the mount point /v1/categories against /v1/categories:batchGet
+const batchGetRouter = express.Router();
+batchGetRouter.get(/^\/categories:batchGet$/, (req, res) => {
     const data = readData();
     const names = Array.isArray(req.query.names) ? req.query.names : req.query.names ? [req.query.names] : [];
 
@@ -30,4 +32,5 @@ router.get('\\:batchGet', (req, res) => {
     res.json({ categories });
 });
 
+export { batchGetRouter };
 export default router;
