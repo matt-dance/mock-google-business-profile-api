@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  mock-gbp-api:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=8080
+    command: npm run dev
