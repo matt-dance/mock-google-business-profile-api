@@ -199,6 +199,16 @@ const fetchReviews = async (accountId, locationId) => {
 };
 ```
 
+### Account & Location IDs
+
+The real Google API assigns opaque numeric IDs to accounts and locations (e.g., `accounts/1234567890`). The mock server generates random IDs when you run `npm run seed`.
+
+**To integrate with your app**, you have two options:
+
+1. **Discover IDs dynamically** (recommended) — Call `GET /v1/accounts` first, then use the returned account IDs to call `GET /v1/accounts/{id}/locations`. This mirrors the real API's intended flow and works identically with both mock and production.
+
+2. **Use your own IDs** — Edit `data.json` directly to set account and location names that match what your app expects. The mock does simple string matching on the `name` field, so any ID format works.
+
 ---
 
 ## 🐳 Docker
