@@ -1,6 +1,6 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { getAgent, resetData } from './test-helpers.js';
+import { getAgent, resetData } from './helpers.js';
 
 describe('Local Posts API', () => {
     before(() => resetData());
