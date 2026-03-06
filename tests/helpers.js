@@ -1,7 +1,9 @@
 import fs from 'fs';
+import http from 'http';
+import assert from 'node:assert/strict';
 import path from 'path';
+import { Duplex } from 'stream';
 import { fileURLToPath } from 'url';
-import request from 'supertest';
 import { app } from '../src/server.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -142,11 +144,139 @@ export function resetData() {
     fs.writeFileSync(DATA_FILE, JSON.stringify(structuredClone(TEST_DATA), null, 2));
 }
 
-/**
- * Get a supertest agent bound to the app.
- */
+class MockSocket extends Duplex {
+    constructor(body = '') {
+        super();
+        this.responseChunks = [];
+        this.requestBody = body ? Buffer.from(body) : null;
+        this.remoteAddress = '127.0.0.1';
+    }
+
+    _read() {
+        if (this.requestBody) {
+            this.push(this.requestBody);
+            this.requestBody = null;
+        } else {
+            this.push(null);
+        }
+    }
+
+    _write(chunk, _encoding, callback) {
+        this.responseChunks.push(Buffer.from(chunk));
+        callback();
+    }
+
+    setTimeout() {}
+
+    setNoDelay() {}
+
+    setKeepAlive() {}
+
+    address() {
+        return { address: '127.0.0.1', family: 'IPv4', port: 0 };
+    }
+}
+
+function buildUrl(pathname, query) {
+    if (!query) return pathname;
+
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) {
+        if (Array.isArray(value)) {
+            value.forEach(item => params.append(key, item));
+        } else if (value !== undefined && value !== null) {
+            params.append(key, value);
+        }
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${pathname}?${queryString}` : pathname;
+}
+
+async function performRequest(method, pathname, { body, query } = {}) {
+    const socket = new MockSocket();
+    const req = new http.IncomingMessage(socket);
+    req.method = method;
+    req.url = buildUrl(pathname, query);
+    req.body = body;
+    req.headers = {
+        host: 'localhost',
+        connection: 'close'
+    };
+
+    const res = new http.ServerResponse(req);
+    res.assignSocket(socket);
+
+    const finished = new Promise((resolve, reject) => {
+        res.on('finish', resolve);
+        res.on('error', reject);
+    });
+
+    app.handle(req, res);
+    await finished;
+
+    const rawResponse = Buffer.concat(socket.responseChunks).toString('utf8');
+    const [, responseBody = ''] = rawResponse.split('\r\n\r\n');
+    const contentType = res.getHeader('content-type');
+    const parsedBody = typeof contentType === 'string' && contentType.includes('application/json') && responseBody
+        ? JSON.parse(responseBody)
+        : responseBody;
+
+    return {
+        status: res.statusCode,
+        body: parsedBody,
+        text: responseBody,
+        headers: res.getHeaders()
+    };
+}
+
+class TestRequest {
+    constructor(method, pathname) {
+        this.method = method;
+        this.pathname = pathname;
+        this.requestBody = undefined;
+        this.requestQuery = undefined;
+    }
+
+    send(body) {
+        this.requestBody = body;
+        return this;
+    }
+
+    query(query) {
+        this.requestQuery = query;
+        return this;
+    }
+
+    async expect(status) {
+        const response = await performRequest(this.method, this.pathname, {
+            body: this.requestBody,
+            query: this.requestQuery
+        });
+
+        assert.equal(response.status, status);
+        return response;
+    }
+}
+
 export function getAgent() {
-    return request(app);
+    return {
+        get(pathname) {
+            return new TestRequest('GET', pathname);
+        },
+        post(pathname) {
+            return new TestRequest('POST', pathname);
+        },
+        patch(pathname) {
+            return new TestRequest('PATCH', pathname);
+        },
+        put(pathname) {
+            return new TestRequest('PUT', pathname);
+        },
+        delete(pathname) {
+            return new TestRequest('DELETE', pathname);
+        }
+    };
 }
 
 export { TEST_DATA };

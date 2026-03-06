@@ -50,7 +50,7 @@ This mock server is aligned with the following **Google Business Profile API** v
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/mock-google-business-profile-api.git
+git clone <repository-url>
 cd mock-google-business-profile-api
 
 # Install dependencies
@@ -116,8 +116,8 @@ Base URL: `http://localhost:8080`
 |---|---|---|
 | `GET` | `/v1/accounts` | List all accounts |
 | `GET` | `/v1/accounts/:accountId` | Get a specific account |
-| `GET` | `/v1/accounts/:accountId/notifications` | Get notification settings |
-| `PATCH` | `/v1/accounts/:accountId/notifications` | Update notification settings |
+| `GET` | `/v1/accounts/:accountId/notificationSetting` | Get notification settings |
+| `PATCH` | `/v1/accounts/:accountId/notificationSetting` | Update notification settings |
 
 ### Business Information (Locations)
 | Method | Path | Description |
@@ -259,4 +259,4 @@ This project is **not affiliated with, endorsed by, or created by Google**. It i
 
 ## 📄 License
 
-[MIT](LICENSE) — do whatever you want with it.
+[MIT](LICENSE)

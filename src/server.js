@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
 import accountsRoutes from './routes/accounts.js';
 import locationsRoutes from './routes/locations.js';
 import reviewsRoutes from './routes/reviews.js';
@@ -68,7 +69,7 @@ export { app };
 
 // Only start listening when run directly (not imported by tests)
 const isMainModule = process.argv[1] &&
-  import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'));
+  fileURLToPath(import.meta.url) === process.argv[1];
 if (isMainModule) {
   app.listen(PORT, () => {
     console.log(`Mock Google Business Profile API running on http://localhost:${PORT}`);
